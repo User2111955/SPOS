@@ -1,0 +1,158 @@
+import java.io.*;
+ import java.util.*;
+ public class MacroProcessor_PassOne {
+    static List<String> MDT;
+    static Map<String, String> MNT;
+    static int mntPtr, mdtPtr;
+    static Map<String, String> ALA;
+    static List<String> collectedALA; 
+    public static void main(String[] args) {
+        try {
+            pass1();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    static void pass1() throws Exception {
+        MDT = new ArrayList<>();
+        MNT = new LinkedHashMap<>();
+        ALA = new LinkedHashMap<>();
+        collectedALA = new ArrayList<>(); 
+        mntPtr = 0;
+        mdtPtr = 0;
+        BufferedReader input = new BufferedReader(new InputStreamReader(new 
+FileInputStream("input.txt")));
+        PrintWriter out_pass1 = new PrintWriter(new FileWriter("output_pass1.txt"),
+ true);
+        PrintWriter out_mnt = new PrintWriter(new FileWriter("MNT.txt"), true);
+        PrintWriter out_mdt = new PrintWriter(new FileWriter("MDT.txt"), true);
+        PrintWriter out_ala = new PrintWriter(new FileWriter("ALA.txt"), true);
+        String s;
+        boolean processingMacroDefinition = false;
+        boolean processMacroName = false;
+        System.out.println("============= Pass 1 Output ==============");
+        while ((s = input.readLine()) != null) {
+            String s_arr[] = tokenizeString(s, " ");
+            String curToken = s_arr[0];
+            if (curToken.equalsIgnoreCase("MACRO")) {
+                processingMacroDefinition = true;
+                processMacroName = true;
+            } else if (processingMacroDefinition) {
+                if (curToken.equalsIgnoreCase("MEND")) {
+                    MDT.add(mdtPtr++, s);
+                    collectedALA.addAll(ALA.entrySet().stream()
+                                         .map(entry -> entry.getKey() + " " + 
+entry.getValue())
+                                         .toList());
+                    ALA.clear(); 
+                    processingMacroDefinition = false;
+                    continue;
+                }
+                if (processMacroName) {
+                    MNT.put(curToken, mdtPtr + "");
+                    mntPtr++;
+                    processArgumentList(s_arr[1]);
+                    MDT.add(mdtPtr, s);
+                    mdtPtr++;
+                    processMacroName = false;
+                    continue;
+                }
+                String indexedArgList = processArguments(s_arr[1]);
+                MDT.add(mdtPtr++, curToken + " " + indexedArgList);
+            } else {
+                System.out.println(s);
+                out_pass1.println(s);
+            }
+        }
+        input.close();
+        System.out.println("============= MNT ==============");
+        for (String key : MNT.keySet()) {
+            String mntRow = key + " " + MNT.get(key);
+            System.out.println(mntRow);
+            out_mnt.println(mntRow);
+        }
+        System.out.println("============= MDT ==============");
+        for (int i = 0; i < MDT.size(); i++) {
+            String mdtRow = i + " " + MDT.get(i);
+            System.out.println(mdtRow.replace("&amp;", "&"));
+            out_mdt.println(mdtRow.replace("&amp;", "&"));
+        }
+        System.out.println("============= ALA ==============");
+        for (String alaEntry : collectedALA) {
+            System.out.println(alaEntry.replace("&amp;", "&")); 
+            out_ala.println(alaEntry.replace("&amp;", "&")); 
+        }
+        out_pass1.close();
+        out_mnt.close();
+        out_mdt.close();
+        out_ala.close();
+    }
+    static void processArgumentList(String argList) {
+        StringTokenizer st = new StringTokenizer(argList, ",", false);
+        ALA.clear();
+        int argCount = st.countTokens();
+        String curArg;
+        for (int i = 1; i <= argCount; i++) {
+            curArg = st.nextToken();
+            if (curArg.contains("=")) {
+                curArg = curArg.substring(0, curArg.indexOf("="));
+            }
+            ALA.put(curArg, "#" + i);
+        }
+    }
+    static String processArguments(String argList) {
+        StringTokenizer st = new StringTokenizer(argList, ",", false);
+        int argCount = st.countTokens();
+        String curArg, argIndexed;
+        for (int i = 0; i < argCount; i++) {
+            curArg = st.nextToken();
+            argIndexed = ALA.get(curArg);
+            argList = argList.replaceAll(curArg, argIndexed);
+        }
+        return argList;
+    }
+    static String[] tokenizeString(String str, String separator) {
+        StringTokenizer st = new StringTokenizer(str, separator, false);
+        String s_arr[] = new String[st.countTokens()];
+        for (int i = 0; i < s_arr.length; i++) {
+            s_arr[i] = st.nextToken();
+        }
+        return s_arr;
+    }
+ }
+ /*
+ PS C:\College Notes\SPOS\MacroPassOne> javac MacroProcessor_PassOne.java
+ PS C:\College Notes\SPOS\MacroPassOne> java MacroProcessor_PassOne
+ ============= Pass 1 Output ==============
+ START 100
+ READ N1
+ READ N2
+ INCR N1,N2,REG=CREG
+ DECR N1,N2
+ STOP
+ N1 DS 1
+N2 DS 1
+ END
+ ============= MNT ==============
+ INCR 0
+ DECR 5
+ ============= MDT ==============
+ 0 INCR &X,&Y,&REG=AREG
+ 1 MOVER #3,#1
+ 2 ADD #3,#2
+ 3 MOVEM #3,#1
+ 4 MEND
+ 5 DECR &A,&B,&REG=BREG
+ 6 MOVER #3,#1
+ 7 SUB #3,#2
+ 8 MOVEM #3,#1
+ 9 MEND
+ ============= ALA ==============
+ &X #1
+ &Y #2
+ &REG #3
+ &A #1
+ &B #2
+ &REG #3
+ PS C:\College Notes\SPOS\MacroPassOne> 
+*/
