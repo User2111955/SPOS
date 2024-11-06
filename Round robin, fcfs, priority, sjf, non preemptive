@@ -1,0 +1,562 @@
+// 1)Round robin
+
+import java.util.*; 
+public class RoundRobin { 
+    public static void main(String args[]) { 
+        Scanner s = new Scanner(System.in); 
+        int wtime[], btime[], rtime[], num, quantum; 
+        wtime = new int[10]; 
+        btime = new int[10]; 
+        rtime = new int[10]; 
+ 
+        System.out.print("Enter number of processes (MAX 10): "); 
+        num = s.nextInt(); 
+ 
+        System.out.println("Enter burst time for each process:"); 
+        for (int i = 0; i < num; i++) { 
+            System.out.print("P[" + (i + 1) + "]: "); 
+            btime[i] = s.nextInt(); 
+            rtime[i] = btime[i]; 
+            wtime[i] = 0; 
+        } 
+ 
+        System.out.print("\nEnter quantum: "); 
+        quantum = s.nextInt(); 
+ 
+        int rp = num;  
+        int i = 0; 
+        int time = 0; 
+         
+        List<String> ganttChart = new ArrayList<>(); 
+        List<Integer> ganttTime = new ArrayList<>(); 
+        ganttTime.add(time); 
+ 
+        while (rp != 0) { 
+            if (rtime[i] > 0) { 
+                if (rtime[i] > quantum) { 
+                    time += quantum; 
+                    rtime[i] -= quantum; 
+                } else { 
+                    time += rtime[i]; 
+                    rtime[i] = 0; 
+                    rp--; 
+                } 
+                ganttChart.add("P[" + (i + 1) + "]"); 
+                ganttTime.add(time); 
+            } 
+ 
+            i++; 
+            if (i == num) { 
+                i = 0; 
+            } 
+        } 
+ 
+        System.out.println("\n\nGantt Chart:"); 
+        for (String process : ganttChart) { 
+            System.out.print("|" + process + " "); 
+        } 
+        System.out.println("|"); 
+ 
+        for (Integer t : ganttTime) { 
+            System.out.print(t + " "); 
+        } 
+        System.out.println(); 
+} 
+} 
+OUTPUT: 
+Enter number of processes (MAX 10): 5 
+Enter burst time for each process: 
+P[1]: 1 
+P[2]: 3 
+P[3]: 4 
+P[4]: 5 
+P[5]: 7 
+Enter quantum: 1 
+Gantt Chart: 
+|P[1] |P[2] |P[3] |P[4] |P[5] |P[2] |P[3] |P[4] |P[5] |P[2] |P[3] |P[4] |P[5] |P[3] |P[4] |P[5] |P[4] 
+|P[5] |P[5] |P[5] | 
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 
+
+
+//2) FCFS
+import java.util.Scanner; 
+ 
+public class FCFS { 
+    public static void main(String[] args) { 
+ 
+        System.out.println("Enter the number of process"); 
+        Scanner in = new Scanner(System.in); 
+        int numberOfProcesses = in.nextInt(); 
+ 
+        int pid[] = new int[numberOfProcesses]; 
+        int bt[] = new int[numberOfProcesses]; 
+        int ar[] = new int[numberOfProcesses]; 
+        int ct[] = new int[numberOfProcesses]; 
+        int ta[] = new int[numberOfProcesses]; 
+        int wt[] = new int[numberOfProcesses]; 
+ 
+        for (int i = 0; i < numberOfProcesses; i++) { 
+            System.out.println("Enter process " + (i + 1) + " arrival time: "); 
+            ar[i] = in.nextInt(); 
+            System.out.println("Enter process " + (i + 1) + " burst time: "); 
+            bt[i] = in.nextInt(); 
+            pid[i] = i + 1; 
+        } 
+ 
+        int temp; 
+ 
+        // Sorting processes by arrival time 
+        for (int i = 0; i < numberOfProcesses; i++) { 
+            for (int j = i + 1; j < numberOfProcesses; j++) { 
+                if (ar[i] > ar[j]) { 
+                    // Swap arrival times 
+                    temp = ar[i]; 
+                    ar[i] = ar[j]; 
+                    ar[j] = temp; 
+ 
+                    // Swap process IDs 
+                    temp = pid[i]; 
+                    pid[i] = pid[j]; 
+                    pid[j] = temp; 
+ 
+                    // Swap burst times 
+                    temp = bt[i]; 
+                    bt[i] = bt[j]; 
+                    bt[j] = temp; 
+                } 
+            } 
+        } 
+ 
+        // Calculating completion times 
+        System.out.println(); 
+        ct[0] = bt[0] + ar[0]; // First process completion time 
+        for (int i = 1; i < numberOfProcesses; i++) { 
+            ct[i] = ct[i - 1] + bt[i]; // Completion time for each subsequent process 
+        } 
+ 
+        // Calculating turnaround time and waiting time 
+        for (int i = 0; i < numberOfProcesses; i++) { 
+            ta[i] = ct[i] - ar[i]; // Turnaround time 
+            wt[i] = ta[i] - bt[i]; // Waiting time 
+        } 
+ 
+        // Displaying the result 
+        System.out.println("Process\t\tAT\t\tBT\t\tCT\t\tTAT\t\tWT"); 
+        for (int i = 0; i < numberOfProcesses; i++) { 
+            System.out.println(pid[i] + "\t\t\t" + ar[i] + "\t\t" + bt[i] + "\t\t" + ct[i] + "\t\t" + ta[i] + "\t\t" + 
+wt[i]); 
+        } 
+ 
+        // Displaying the Gantt chart 
+        System.out.println("Gantt chart: "); 
+        for (int i = 0; i < numberOfProcesses; i++) { 
+            System.out.print("P" + pid[i] + " "); 
+        } 
+    } 
+} 
+ 
+OUTPUT: 
+Enter the number of process 
+4 
+Enter process 1 arrival time:  
+0 
+Enter process 1 burst time:  
+2 
+Enter process 2 arrival time:  
+3 
+Enter process 2 burst time:  
+4 
+Enter process 3 arrival time: 
+1 
+Enter process 3 burst time: 
+2 
+Enter process 4 arrival time: 
+3 
+Enter process 4 burst time: 
+1 
+Process        
+1                       
+3                       
+2                       
+4                       
+Gantt chart: 
+P1 P3 P2 P4 
+ AT              
+0              
+1              
+3              
+3              
+BT              
+ 2               
+ 2               
+ 4               
+ 1               
+CT              
+2              
+4              
+8              
+9              
+TAT             
+ 2               
+ 3               
+ 5               
+ 6               
+WT 
+0 
+1 
+1 
+5 
+
+
+//PRIORITY
+
+import java.util.Scanner; 
+ 
+public class PriorityScheduling { 
+    static int jtime = 0; 
+    static int counter; 
+    static int n; 
+    static int[] at = new int[20], bt = new int[20], bt_copy = new int[20], ct = new int[20], pt = new 
+int[20], sts = new int[20]; 
+    static int[] tat = new int[20], wt = new int[20]; 
+    static String ganttChart = ""; 
+    static String ganttTimes = "0 "; 
+ 
+    static void process_Ps() { 
+        int index = -1; 
+        int highestPriority = Integer.MAX_VALUE; 
+        for (int i = 0; i < n; i++) { 
+            if (at[i] <= jtime && sts[i] != 1) { 
+                if (pt[i] < highestPriority) { 
+                    highestPriority = pt[i]; 
+                    index = i; 
+                } 
+            } 
+        } 
+        if (index != -1) { 
+            if (bt[index] > 0) { 
+                ganttChart += "| P" + (index + 1) + " "; 
+                jtime++; 
+                ganttTimes += jtime + " "; 
+                bt[index]--; 
+            } 
+ 
+            if (bt[index] == 0) { 
+                ct[index] = jtime; 
+                sts[index] = 1; 
+                counter--; 
+            } 
+        } else { 
+            jtime++; 
+            ganttTimes += jtime + " "; 
+        } 
+    } 
+ 
+    public static void main(String[] args) { 
+        Scanner sc = new Scanner(System.in); 
+ 
+        System.out.print("Enter the number of processes: "); 
+        n = sc.nextInt(); 
+        counter = n; 
+ 
+        for (int i = 0; i < n; i++) { 
+            System.out.println("Process " + (i + 1) + ":"); 
+            System.out.print("Arrival time: "); 
+            at[i] = sc.nextInt(); 
+            System.out.print("Burst time: "); 
+            bt[i] = sc.nextInt(); 
+            bt_copy[i] = bt[i]; 
+            System.out.print("Priority: "); 
+            pt[i] = sc.nextInt(); 
+            sts[i] = 0; 
+            ct[i] = 0; 
+        } 
+ 
+        System.out.println("\nGiven details:"); 
+        System.out.println("PID    AT    BT    PT"); 
+        for (int i = 0; i < n; i++) { 
+            System.out.printf("P%-7d%-7d%-7d%-7d\n", (i + 1), at[i], bt_copy[i], pt[i]); 
+        } 
+ 
+        while (counter != 0) { 
+            process_Ps(); 
+        } 
+ 
+        double totalTAT = 0, totalWT = 0; 
+        for (int i = 0; i < n; i++) { 
+            tat[i] = ct[i] - at[i]; 
+            wt[i] = tat[i] - bt_copy[i]; 
+            totalTAT += tat[i]; 
+            totalWT += wt[i]; 
+        } 
+ 
+        System.out.println("\nResults:"); 
+        System.out.println("PID    AT    BT    PT    CT    TAT   WT"); 
+        for (int i = 0; i < n; i++) { 
+            System.out.printf("P%-7d%-7d%-7d%-7d%-7d%-7d%-7d\n", (i + 1), at[i], bt_copy[i], pt[i], ct[i], 
+tat[i], wt[i]); 
+        } 
+ 
+        System.out.println("\nGantt Chart:"); 
+        System.out.println(ganttChart + "|"); 
+        System.out.println(ganttTimes); 
+ 
+        System.out.printf("\nAverage Turnaround Time: %.2f\n", (totalTAT / n)); 
+        System.out.printf("Average Waiting Time: %.2f\n", (totalWT / n)); 
+sc.close(); 
+} 
+} 
+OUTPUT: 
+Enter the number of processes: 4 
+Process 1: 
+Arrival time: 0 
+Burst time: 2 
+Priority: 2 
+Process 2: 
+Arrival time: 1 
+Burst time: 4 
+Priority: 1 
+Process 3: 
+Arrival time: 3 
+Burst time: 3 
+Priority: 0 
+Process 4: 
+Arrival time: 3 
+Burst time: 2 
+Priority: 1 
+Given details: 
+PID    AT    BT    PT 
+P1      0      2      2 
+P2      1      4      1 
+P3      3      3      0       
+P4      3      2      1 
+Results: 
+PID    AT    BT    PT    CT    TAT   WT 
+P1      0      2      2      11     11     9 
+P2      1      4      1      8      7      3 
+P3      3      3      0      6      3      0 
+P4      3      2      1      10     7      5 
+Gantt Chart: 
+| P1 | P2 | P2 | P3 | P3 | P3 | P2 | P2 | P4 | P4 | P1 | 
+0 1 2 3 4 5 6 7 8 9 10 11 
+Average Turnaround Time: 7.00 
+Average Waiting Time: 4.25 
+
+
+
+//SJF
+import java.util.Scanner; 
+ 
+public class SJF { 
+    public static void main(String args[]) { 
+        Scanner sc = new Scanner(System.in); 
+        System.out.println("Enter the number of processes:"); 
+        int n = sc.nextInt(); 
+        int pid[] = new int[n]; 
+        int at[] = new int[n];  
+        int bt[] = new int[n];  
+        int ct[] = new int[n];  
+        int ta[] = new int[n];  
+        int wt[] = new int[n];  
+        int f[] = new int[n];   
+ 
+        int st = 0, tot = 0;  
+        float avgwt = 0, avgta = 0;  
+ 
+      
+        for (int i = 0; i < n; i++) { 
+            System.out.println("Enter process " + (i + 1) + " arrival time:"); 
+            at[i] = sc.nextInt(); 
+            System.out.println("Enter process " + (i + 1) + " burst time:"); 
+            bt[i] = sc.nextInt(); 
+            pid[i] = i + 1; 
+            f[i] = 0; // Initially, no process is completed 
+        } 
+ 
+        while (true) { 
+            int c = n, min = Integer.MAX_VALUE; // c -> process index with shortest burst time, min -> 
+shortest burst time 
+ 
+            if (tot == n) { 
+                break;  
+            } 
+ 
+            for (int i = 0; i < n; i++) { 
+                if (at[i] <= st && f[i] == 0 && bt[i] < min) { 
+                    min = bt[i]; 
+                    c = I; 
+            } 
+ 
+            if (c == n) {  
+                st++; 
+            } else {  
+                ct[c] = st + bt[c];  
+                st += bt[c];  
+                ta[c] = ct[c] - at[c];  
+                wt[c] = ta[c] - bt[c];  
+                f[c] = 1;  
+                pid[tot] = c + 1;  
+                tot++;  
+            } 
+        } 
+ 
+        System.out.println("\npid\tarrival\tburst\tcomplete\tturnaround\twaiting"); 
+        for (int i = 0; i < n; i++) { 
+            avgwt += wt[i];  
+            avgta += ta[i];  
+            System.out.println(pid[i] + "\t\t" + at[i] + "\t\t" + bt[i] + "\t\t" + ct[i] + "\t\t" + ta[i] + "\t\t" + 
+wt[i]); 
+        } 
+ 
+    
+        System.out.println("\nAverage Turnaround Time: " + (avgta / n)); 
+        System.out.println("Average Waiting Time: " + (avgwt / n)); 
+        sc.close(); 
+ 
+        System.out.println("Gantt chart process order:"); 
+        for (int i = 0; i < n; i++) { 
+            System.out.print("P" + pid[i] + " "); 
+        } 
+    } 
+} 
+ 
+OUTPUT: 
+ 
+ 
+ 
+
+
+//Non- Premptive
+import java.util.Scanner; 
+ 
+public class NonPreemptivePriorityScheduling { 
+    static int jtime = 0; 
+    static int counter; 
+    static int n; 
+    static int[] at = new int[20], bt = new int[20], bt_copy = new int[20], ct = new int[20], pt = new 
+int[20], sts = new int[20]; 
+    static int[] tat = new int[20], wt = new int[20]; 
+    static String ganttChart = ""; 
+    static String ganttTimes = "0 "; 
+ 
+    static void process_Ps() { 
+        int index = -1; 
+        int highestPriority = Integer.MAX_VALUE; 
+        for (int i = 0; i < n; i++) { 
+            if (at[i] <= jtime && sts[i] != 1) { 
+                if (pt[i] < highestPriority) { 
+                    highestPriority = pt[i]; 
+                    index = i; 
+                } 
+            } 
+        } 
+        if (index != -1) { 
+            ganttChart += "| P" + (index + 1) + " "; 
+            int burstTime = bt[index]; 
+            jtime += burstTime; 
+            ganttTimes += jtime + " "; 
+            bt[index] = 0; 
+            ct[index] = jtime; 
+            sts[index] = 1; 
+            counter--; 
+        } else { 
+            jtime++; 
+            ganttTimes += jtime + " "; 
+        } 
+    } 
+ 
+    public static void main(String[] args) { 
+        Scanner sc = new Scanner(System.in); 
+        System.out.print("Enter the number of processes: "); 
+        n = sc.nextInt(); 
+        counter = n; 
+        for (int i = 0; i < n; i++) { 
+            System.out.println("Process " + (i + 1) + ":"); 
+            System.out.print("Arrival time: "); 
+            at[i] = sc.nextInt(); 
+            System.out.print("Burst time: "); 
+            bt[i] = sc.nextInt(); 
+            bt_copy[i] = bt[i]; 
+            System.out.print("Priority: "); 
+            pt[i] = sc.nextInt(); 
+            sts[i] = 0; 
+            ct[i] = 0; 
+        } 
+ 
+        System.out.println("\nGiven details:"); 
+        System.out.println("PID AT BT PT"); 
+        for (int i = 0; i < n; i++) { 
+            System.out.printf("P%-7d%-7d%-7d%-7d\n", (i + 1), at[i], bt_copy[i], pt[i]); 
+        } 
+ 
+        while (counter != 0) { 
+            process_Ps(); 
+        } 
+ 
+        double totalTAT = 0, totalWT = 0; 
+        for (int i = 0; i < n; i++) { 
+            tat[i] = ct[i] - at[i]; 
+            wt[i] = tat[i] - bt_copy[i]; 
+            totalTAT += tat[i]; 
+            totalWT += wt[i]; 
+        } 
+ 
+        System.out.println("\nResults:"); 
+        System.out.println("PID AT BT PT CT TAT WT"); 
+        for (int i = 0; i < n; i++) { 
+            System.out.printf("P%-7d%-7d%-7d%-7d%-7d%-7d%-7d\n", (i + 1), at[i], bt_copy[i], pt[i], ct[i], 
+tat[i], wt[i]); 
+        } 
+ 
+        System.out.println("\nGantt Chart:"); 
+        System.out.println(ganttChart + "|"); 
+        System.out.println(ganttTimes); 
+ 
+        System.out.printf("\nAverage Turnaround Time: %.2f\n", (totalTAT / n)); 
+        System.out.printf("Average Waiting Time: %.2f\n", (totalWT / n)); 
+ 
+        sc.close(); 
+    } 
+} 
+ 
+OUTPUT: 
+Enter the number of processes: 5 
+Process 1: 
+Arrival time: 1 
+Burst time: 2 
+Priority: 3 
+Process 2: 
+Arrival time: 0 
+Burst time: 1 
+Priority: 2 
+Process 3: 
+Arrival time: 2 
+Burst time: 3 
+Priority: 4 
+Process 4: 
+Arrival time: 3 
+Burst time: 4 
+Priority: 5 
+Process 5: 
+Arrival time: 4 
+Burst time: 5 
+Priority: 0 
+Given details: 
+PID AT BT PT 
+P1      1      2      3 
+P2      0      1      2       
+P3      2      3      4 
+P4      3      4      5 
+P5      4      5      0 
+Results: 
+PID AT BT PT CT TAT WT 
+P1      1      2      3      3      2      0 
+P2      0      1      2      1      1      0 
+P3      2      3      4      6      4      1 
+P4      3      4      5      15     12     8 
+P5      4      5      0      11     7      2       
+Gantt Chart: 
+| P2 | P1 | P3 | P5 | P4 | 
+0 1 3 6 11 15 
+Average Turnaround Time: 5.20 
+Average Waiting Time: 2.20 
