@@ -54,3 +54,37 @@ JNIEXPORT jint JNICALL Java_ArithmeticOperations_divide(JNIEnv *env, jobject obj
     }
     return a / b;  // Return the quotient of a and b
 }
+
+
+
+// ( write this commands in terminal to execute tese codes )
+
+Step 3 commands for execution on terminal 
+    • javac ArithmeticOperations.java
+    • javac -h . ArithmeticOperations.java
+    • gcc -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" -shared -o libArithmeticOperations.so ArithmeticOperations.c
+    • java -Djava.library.path=. ArithmeticOperations
+    
+( alternate USE IT IN CASE OF AN ERROR DURING EXECUTION )
+
+still if u face any errors  for execution of above program  follow this step .simply copy the following code on terminal 
+
+1 echo $JAVA_HOME
+
+2 export JAVA_HOME=/path/to/your/jdk
+
+3 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64  source ~/.bashrc
+
+4 sudo apt-get install default-jdk
+
+5. sudo update-alternatives --config java
+
+6 echo 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64' >> ~/.bashrc
+7 source ~/.bashrc
+  
+8 ls $JAVA_HOME/include/jni.h
+9  ls $JAVA_HOME/include/linux/jni_md.h
+
+10 gcc -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" -shared -o libArithmeticOperations.so ArithmeticOperations.c
+
+11 java -Djava.library.path=. ArithmeticOperations
